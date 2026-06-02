@@ -1,0 +1,51 @@
+{
+  "name": "star-siege-nora",
+  "version": "0.1.0",
+  "description": "Nora's Star Siege — a canvas-rendered, retro arcade space-shooter as a React component and hook.",
+  "author": "Nora Casey",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "react",
+    "game",
+    "arcade",
+    "canvas",
+    "space-shooter",
+    "star-siege"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/star-siege-nora.cjs",
+  "module": "./dist/star-siege-nora.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/star-siege-nora.js",
+      "require": "./dist/star-siege-nora.cjs"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.4.0"
+  }
+}
