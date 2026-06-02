@@ -28,8 +28,8 @@ export function Game() {
 }
 ```
 
-Arrow keys move the ship; **Space** or **↑** fires. Pass `keyboard={false}` to
-wire up your own controls.
+Arrow keys move the ship; **Space** or **↑** fires; **P** pauses and resumes.
+Pass `keyboard={false}` to wire up your own controls.
 
 ### `<StarSiege />` props
 
@@ -56,16 +56,16 @@ the live state plus controls — render it however you like:
 import { useStarSiege } from '@norarcasey/star-siege-nora';
 
 function Hud() {
-  const { state, moveLeft, moveRight, shoot, reset } = useStarSiege({
-    keyboard: false,
-  });
+  const { state, paused, moveLeft, moveRight, shoot, togglePause, reset } =
+    useStarSiege({ keyboard: false });
 
   return (
     <div>
-      <p>Score: {state.score} — {state.status}</p>
+      <p>Score: {state.score} — {paused ? 'paused' : state.status}</p>
       <button onClick={moveLeft}>◀</button>
       <button onClick={shoot}>fire</button>
       <button onClick={moveRight}>▶</button>
+      <button onClick={togglePause}>{paused ? 'resume' : 'pause'}</button>
       {state.status !== 'playing' && <button onClick={reset}>restart</button>}
     </div>
   );

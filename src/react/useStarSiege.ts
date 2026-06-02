@@ -12,10 +12,18 @@ export interface UseStarSiegeOptions extends GameConfig {
 export interface StarSiegeControls {
   /** Live game snapshot, updated each animation frame. */
   state: GameState;
+  /** Whether the game loop is currently paused. */
+  paused: boolean;
   moveLeft: () => void;
   moveRight: () => void;
   shoot: () => void;
-  /** Restart the game from its initial state. */
+  /** Pause the game loop (no-op if already paused). */
+  pause: () => void;
+  /** Resume the game loop (no-op if already running). */
+  resume: () => void;
+  /** Flip between paused and running. */
+  togglePause: () => void;
+  /** Restart the game from its initial state (also clears pause). */
   reset: () => void;
 }
 
@@ -27,7 +35,7 @@ export interface StarSiegeControls {
 export function useStarSiege(
   options: UseStarSiegeOptions = {}
 ): StarSiegeControls {
-  const { keyboard = true, paused = false, ...config } = options;
+  const { keyboard = true, paused: pausedOption = false, ...config } = options;
 
   // One engine per mounted hook; config changes are intentionally ignored
   // after mount (call reset() to apply a fresh game).
@@ -54,8 +62,21 @@ export function useStarSiege(
     setState(engine.getState());
   }, [engine]);
 
+  // Pause state is owned by the hook so it can be toggled from controls or
+  // the keyboard. The `paused` option acts as a controlled override: when the
+  // consumer changes it, we follow.
+  const [paused, setPaused] = useState(pausedOption);
+  useEffect(() => {
+    setPaused(pausedOption);
+  }, [pausedOption]);
+
+  const pause = useCallback(() => setPaused(true), []);
+  const resume = useCallback(() => setPaused(false), []);
+  const togglePause = useCallback(() => setPaused((p) => !p), []);
+
   const reset = useCallback(() => {
     engine.reset();
+    setPaused(false);
     setState(engine.getState());
   }, [engine]);
 
@@ -102,12 +123,25 @@ export function useStarSiege(
           e.preventDefault();
           shoot();
           break;
+        case 'KeyP':
+          togglePause();
+          break;
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [keyboard, moveLeft, moveRight, shoot]);
+  }, [keyboard, moveLeft, moveRight, shoot, togglePause]);
 
-  return { state, moveLeft, moveRight, shoot, reset };
+  return {
+    state,
+    paused,
+    moveLeft,
+    moveRight,
+    shoot,
+    pause,
+    resume,
+    togglePause,
+    reset,
+  };
 }

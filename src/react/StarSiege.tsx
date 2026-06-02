@@ -109,7 +109,7 @@ export function StarSiege({
   style,
   ...options
 }: StarSiegeProps) {
-  const { state, reset } = useStarSiege(options);
+  const { state, paused, togglePause, reset } = useStarSiege(options);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const palette = { ...DEFAULT_COLORS, ...colors };
@@ -143,13 +143,20 @@ export function StarSiege({
       ? `You Win: ${state.score}`
       : state.status === 'lost'
         ? 'Game Over'
-        : `${state.score}`;
+        : paused
+          ? `Paused · ${state.score}`
+          : `${state.score}`;
 
   return (
     <div className={className} style={style}>
       {showStatus && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h1 style={{ margin: 0, fontFamily: 'monospace' }}>{banner}</h1>
+          {state.status === 'playing' && (
+            <button type="button" onClick={togglePause}>
+              {paused ? 'Resume' : 'Pause'}
+            </button>
+          )}
           {state.status !== 'playing' && (
             <button type="button" onClick={reset}>
               Play again
