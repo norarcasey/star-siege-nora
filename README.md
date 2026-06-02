@@ -8,14 +8,14 @@ Distinct from any particular 1978 cabinet — this is Nora's own siege.
 ## Install
 
 ```bash
-npm install star-siege-nora
+npm install @norarcasey/star-siege-nora
 # react and react-dom (>=18) are peer dependencies
 ```
 
 ## Quick start
 
 ```tsx
-import { StarSiege } from 'star-siege-nora';
+import { StarSiege } from '@norarcasey/star-siege-nora';
 
 export function Game() {
   return (
@@ -53,7 +53,7 @@ Plus all [`GameConfig`](src/engine/types.ts) tuning fields (`width`, `height`,
 the live state plus controls — render it however you like:
 
 ```tsx
-import { useStarSiege } from 'star-siege-nora';
+import { useStarSiege } from '@norarcasey/star-siege-nora';
 
 function Hud() {
   const { state, moveLeft, moveRight, shoot, reset } = useStarSiege({
