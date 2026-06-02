@@ -163,9 +163,25 @@ describe('GameEngine — invader march', () => {
       invaderStepMs: 100,
     });
     engine.tick(100);
-    // Right edge hit: each invader += width + 1 (drop + reverse), then += -1.
-    // [3,4] → [3+6,4+6] = [9,10] → += -1 → [8,9].
+    // Right edge hit: the whole formation drops one row and reverses.
+    // [3,4] → [3+5,4+5] = [8,9].
     expect(engine.getState().invaders).toEqual([8, 9]);
+  });
+
+  it('reverses on an edge invader that is not the first or last cell', () => {
+    // Regression: col-4 invader (index 4) sits on the right edge but is not the
+    // last array element, so the old first/last-only check missed it and let it
+    // step sideways from index 4 to index 5 — wrapping onto the next row.
+    const engine = new GameEngine({
+      width: 5,
+      height: 5,
+      initialInvaders: [4, 5], // col 4 (right edge) and col 0 of the next row
+      initialShooter: 24,
+      invaderStepMs: 100,
+    });
+    engine.tick(100);
+    // Should drop straight down, never wrap to [5, 6].
+    expect(engine.getState().invaders).toEqual([9, 10]);
   });
 });
 

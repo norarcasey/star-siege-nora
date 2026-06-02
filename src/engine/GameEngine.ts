@@ -188,28 +188,32 @@ export class GameEngine {
   private moveInvaders(): void {
     if (this.invaders.length === 0) return;
 
-    const leftEdge = this.onLeftEdge(this.invaders[0]);
-    const rightEdge = this.onRightEdge(this.invaders[this.invaders.length - 1]);
-
-    if (rightEdge && this.goingRight) {
-      for (let i = 0; i < this.invaders.length; i++) {
-        this.invaders[i] += this.width + 1;
-      }
-      this.goingRight = false;
-      this.direction = -1;
+    // Scan the whole formation: any invader touching the edge in the current
+    // travel direction turns the formation around. Checking only the first and
+    // last cells breaks once shots punch holes in the block, letting an edge
+    // invader step sideways and wrap onto the next row.
+    if (this.goingRight && this.invaders.some((i) => this.onRightEdge(i))) {
+      this.dropAndReverse(-1);
+      return;
     }
 
-    if (leftEdge && !this.goingRight) {
-      for (let i = 0; i < this.invaders.length; i++) {
-        this.invaders[i] += this.width - 1;
-      }
-      this.goingRight = true;
-      this.direction = 1;
+    if (!this.goingRight && this.invaders.some((i) => this.onLeftEdge(i))) {
+      this.dropAndReverse(1);
+      return;
     }
 
     for (let i = 0; i < this.invaders.length; i++) {
       this.invaders[i] += this.direction;
     }
+  }
+
+  /** Drop the whole formation one row and reverse its travel direction. */
+  private dropAndReverse(direction: number): void {
+    for (let i = 0; i < this.invaders.length; i++) {
+      this.invaders[i] += this.width;
+    }
+    this.direction = direction;
+    this.goingRight = direction === 1;
   }
 
   /** Resolve win/lose conditions (ported from index.ts `checkStatus`). */
