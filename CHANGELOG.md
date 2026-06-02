@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format is based
 on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- The player ship now renders as an SVG sprite. Its hull tint follows the
+  configurable `shooter` colour and its engine glow follows `laser`, falling
+  back to a solid block until the sprite loads.
+- Vitest test suite covering the `GameEngine` (movement, lasers, scoring,
+  invader march, win/lose rules, tick accumulation, reset) and the ship
+  sprite helper. Run with `npm test`.
+
 ## [0.2.0] - 2026-06-02
 
 ### Added
