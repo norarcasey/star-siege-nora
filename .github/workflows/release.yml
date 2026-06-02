@@ -31,6 +31,7 @@ jobs:
       - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run typecheck
+      - run: npm test
       # No token needed: npm exchanges the GitHub OIDC token for a short-lived
       # publish credential, and attaches provenance automatically.
       # publish runs prepublishOnly (build) first.

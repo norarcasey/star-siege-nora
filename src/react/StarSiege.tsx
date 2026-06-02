@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { GameState } from '../engine/types';
 import { useStarSiege } from './useStarSiege';
 import type { UseStarSiegeOptions } from './useStarSiege';
+import { shipDataUrl } from './ship';
 
 /** Fill colours for each kind of cell. Defaults echo the original clone. */
 export interface StarSiegeColors {
@@ -41,7 +42,8 @@ function draw(
   ctx: CanvasRenderingContext2D,
   state: GameState,
   cell: number,
-  colors: Required<StarSiegeColors>
+  colors: Required<StarSiegeColors>,
+  ship: HTMLImageElement | null
 ): void {
   const { width, height } = state;
 
@@ -71,11 +73,15 @@ function draw(
     ctx.fillRect(x + cell * 0.4, y, cell * 0.2, cell);
   }
 
-  // Player ship.
+  // Player ship — the SVG sprite, falling back to a block until it loads.
   {
-    ctx.fillStyle = colors.shooter;
     const [x, y] = rect(state.shooter);
-    ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+    if (ship && ship.complete && ship.naturalWidth > 0) {
+      ctx.drawImage(ship, x + 1, y + 1, cell - 2, cell - 2);
+    } else {
+      ctx.fillStyle = colors.shooter;
+      ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+    }
   }
 
   // Explosions, drawn on top.
@@ -114,10 +120,26 @@ export function StarSiege({
 
   const palette = { ...DEFAULT_COLORS, ...colors };
 
+  // Load the ship sprite, rebuilding it whenever its colours change. Storing
+  // the loaded image in state triggers a redraw once it's ready.
+  const [ship, setShip] = useState<HTMLImageElement | null>(null);
+  const shipSrc = useMemo(
+    () => shipDataUrl(palette.shooter, palette.laser),
+    [palette.shooter, palette.laser]
+  );
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setShip(img);
+    img.src = shipSrc;
+    return () => {
+      img.onload = null;
+    };
+  }, [shipSrc]);
+
   // Redraw on every state change.
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) draw(ctx, state, cellSize, palette);
+    if (ctx) draw(ctx, state, cellSize, palette, ship);
   });
 
   // Fire lifecycle callbacks exactly once per transition.
