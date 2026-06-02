@@ -36,5 +36,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Trusted Publishing release pipeline (tag push → OIDC publish with
   provenance).
 
-[0.2.0]: https://github.com/norarcasey/star-siege-nora/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/norarcasey/star-siege-nora/releases/tag/v0.1.0
+[0.2.0]: https://github.com/norarcasey/star-siege-nora/releases/tag/v0.2.0
+[0.1.0]: https://www.npmjs.com/package/@norarcasey/star-siege-nora/v/0.1.0
