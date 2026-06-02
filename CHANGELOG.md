@@ -15,6 +15,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   invader march, win/lose rules, tick accumulation, reset) and the ship
   sprite helper. Run with `npm test`.
 
+### Fixed
+
+- Invaders no longer wrap from one edge of the grid to the opposite side a
+  row down once some have been destroyed. Edge detection now scans the whole
+  formation instead of just its first and last cells.
+
 ## [0.2.0] - 2026-06-02
 
 ### Added
