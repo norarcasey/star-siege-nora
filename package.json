@@ -1,6 +1,6 @@
 {
   "name": "@norarcasey/star-siege-nora",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Nora's Star Siege — a canvas-rendered, retro arcade space-shooter as a React component and hook.",
   "author": "Nora Casey",
   "license": "MIT",
