@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import type { GameState } from '../engine/types';
 import { useStarSiege } from './useStarSiege';
 import type { UseStarSiegeOptions } from './useStarSiege';
 import { shipDataUrl } from './ship';
+import { alienDataUrl } from './alien';
+import { explosionDataUrl } from './explosion';
+import { useSprite } from './useSprite';
 
 /** Fill colours for each kind of cell. Defaults echo the original clone. */
 export interface StarSiegeColors {
@@ -43,7 +46,9 @@ function draw(
   state: GameState,
   cell: number,
   colors: Required<StarSiegeColors>,
-  ship: HTMLImageElement | null
+  ship: HTMLImageElement | null,
+  alien: HTMLImageElement | null,
+  explosion: HTMLImageElement | null
 ): void {
   const { width, height } = state;
 
@@ -56,21 +61,21 @@ function draw(
     return [col * cell, row * cell] as const;
   };
 
-  // Invaders, drawn as rounded blocks.
-  ctx.fillStyle = colors.invader;
-  const radius = cell * 0.35;
-  for (const index of state.invaders) {
-    const [x, y] = rect(index);
-    ctx.beginPath();
-    ctx.roundRect(x + 1, y + 1, cell - 2, cell - 2, radius);
-    ctx.fill();
-  }
-
-  // Lasers.
-  ctx.fillStyle = colors.laser;
-  for (const index of state.lasers) {
-    const [x, y] = rect(index);
-    ctx.fillRect(x + cell * 0.4, y, cell * 0.2, cell);
+  // Invaders — the SVG sprite, falling back to rounded blocks until it loads.
+  {
+    const sprite = alien && alien.complete && alien.naturalWidth > 0;
+    const radius = cell * 0.35;
+    if (!sprite) ctx.fillStyle = colors.invader;
+    for (const index of state.invaders) {
+      const [x, y] = rect(index);
+      if (sprite) {
+        ctx.drawImage(alien, x + 1, y + 1, cell - 2, cell - 2);
+      } else {
+        ctx.beginPath();
+        ctx.roundRect(x + 1, y + 1, cell - 2, cell - 2, radius);
+        ctx.fill();
+      }
+    }
   }
 
   // Player ship — the SVG sprite, falling back to a block until it loads.
@@ -84,13 +89,30 @@ function draw(
     }
   }
 
-  // Explosions, drawn on top.
-  ctx.fillStyle = colors.explosion;
-  for (const index of state.explosions) {
+  // Lasers — a slim beam in the top half of the cell, drawn after the ship so
+  // a freshly-fired shot reads as leaving the nose rather than the ship body.
+  ctx.fillStyle = colors.laser;
+  const beamW = cell * 0.1;
+  const beamH = cell * 0.5;
+  for (const index of state.lasers) {
     const [x, y] = rect(index);
-    ctx.beginPath();
-    ctx.arc(x + cell / 2, y + cell / 2, cell * 0.45, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(x + (cell - beamW) / 2, y, beamW, beamH);
+  }
+
+  // Explosions, drawn on top — the SVG burst, falling back to a disc.
+  {
+    const sprite = explosion && explosion.complete && explosion.naturalWidth > 0;
+    if (!sprite) ctx.fillStyle = colors.explosion;
+    for (const index of state.explosions) {
+      const [x, y] = rect(index);
+      if (sprite) {
+        ctx.drawImage(explosion, x + 1, y + 1, cell - 2, cell - 2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(x + cell / 2, y + cell / 2, cell * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
 }
 
@@ -120,26 +142,28 @@ export function StarSiege({
 
   const palette = { ...DEFAULT_COLORS, ...colors };
 
-  // Load the ship sprite, rebuilding it whenever its colours change. Storing
-  // the loaded image in state triggers a redraw once it's ready.
-  const [ship, setShip] = useState<HTMLImageElement | null>(null);
+  // Load the sprites, rebuilding each whenever its colours change. A sprite is
+  // null until it decodes, so draw() falls back to a drawn shape meanwhile.
   const shipSrc = useMemo(
     () => shipDataUrl(palette.shooter, palette.laser),
     [palette.shooter, palette.laser]
   );
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => setShip(img);
-    img.src = shipSrc;
-    return () => {
-      img.onload = null;
-    };
-  }, [shipSrc]);
+  const ship = useSprite(shipSrc);
+  const alienSrc = useMemo(
+    () => alienDataUrl(palette.invader, palette.background),
+    [palette.invader, palette.background]
+  );
+  const alien = useSprite(alienSrc);
+  const explosionSrc = useMemo(
+    () => explosionDataUrl(palette.explosion),
+    [palette.explosion]
+  );
+  const explosion = useSprite(explosionSrc);
 
   // Redraw on every state change.
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) draw(ctx, state, cellSize, palette, ship);
+    if (ctx) draw(ctx, state, cellSize, palette, ship, alien, explosion);
   });
 
   // Fire lifecycle callbacks exactly once per transition.
