@@ -5,6 +5,14 @@
   "author": "Nora Casey",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/norarcasey/star-siege-nora.git"
+  },
+  "homepage": "https://github.com/norarcasey/star-siege-nora#readme",
+  "bugs": {
+    "url": "https://github.com/norarcasey/star-siege-nora/issues"
+  },
   "keywords": [
     "react",
     "game",
@@ -31,7 +39,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18",
