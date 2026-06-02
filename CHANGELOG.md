@@ -14,6 +14,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Vitest test suite covering the `GameEngine` (movement, lasers, scoring,
   invader march, win/lose rules, tick accumulation, reset) and the ship
   sprite helper. Run with `npm test`.
+- Invaders now render as an SVG sprite, with the body tinted by the `invader`
+  colour and eyes cut to the `background`.
+- A shot alien now bursts as an SVG explosion sprite tinted by the
+  `explosion` colour, replacing the plain disc.
+
+### Changed
+
+- The laser is now a slimmer beam that emerges from the ship's nose instead
+  of being drawn behind the hull.
 
 ### Fixed
 
